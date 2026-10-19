@@ -1,0 +1,75 @@
+{
+  "definitions": {
+    "Addresses": {
+      "kind": "entity",
+      "@EndUserText.label": "Addresses",
+      "@ObjectModel.modelingPattern": {
+        "#": "DATA_STRUCTURE"
+      },
+      "@ObjectModel.supportedCapabilities": [
+        {
+          "#": "DATA_STRUCTURE"
+        }
+      ],
+      "elements": {
+        "ADDRESSID": {
+          "@EndUserText.label": "Address ID",
+          "type": "cds.String",
+          "key": true,
+          "length": 10
+        },
+        "CITY": {
+          "@EndUserText.label": "City",
+          "type": "cds.String",
+          "length": 40
+        },
+        "POSTALCODE": {
+          "@EndUserText.label": "Postal code",
+          "type": "cds.String",
+          "length": 10
+        },
+        "STREET": {
+          "@EndUserText.label": "Street",
+          "type": "cds.String",
+          "length": 60
+        },
+        "BUILDING": {
+          "@EndUserText.label": "Building",
+          "type": "cds.String",
+          "length": 10
+        },
+        "COUNTRY": {
+          "@EndUserText.label": "Country",
+          "type": "cds.String",
+          "length": 3
+        },
+        "REGION": {
+          "@EndUserText.label": "Region",
+          "type": "cds.String",
+          "length": 4
+        },
+        "ADDRESSTYPE": {
+          "@EndUserText.label": "Address type",
+          "type": "cds.String",
+          "length": 2
+        },
+        "VALIDITY_STARTDATE": {
+          "@EndUserText.label": "Validity start date",
+          "type": "cds.Date"
+        },
+        "VALIDITY_ENDDATE": {
+          "@EndUserText.label": "Validity end date",
+          "type": "cds.Date"
+        },
+        "LATITUDE": {
+          "@EndUserText.label": "Latitude",
+          "type": "cds.Double"
+        },
+        "LONGITUDE": {
+          "@EndUserText.label": "Longitude",
+          "type": "cds.Double"
+        }
+      }
+    }
+  }
+}

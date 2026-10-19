@@ -1,0 +1,137 @@
+{
+  "definitions": {
+    "V_SALES_BY_COUNTRY": {
+      "kind": "entity",
+      "@EndUserText.label": "Sales by Customer Country",
+      "@ObjectModel.modelingPattern": {
+        "#": "DATA_STRUCTURE"
+      },
+      "@ObjectModel.supportedCapabilities": [
+        {
+          "#": "DATA_STRUCTURE"
+        }
+      ],
+      "@DataWarehouse.sqlEditor.query": "SELECT A.\"COUNTRY\" AS \"COUNTRY\", COUNT(S.\"SALESORDERID\") AS \"ORDER_COUNT\", SUM(S.\"NETAMOUNT\") AS \"NET_AMOUNT\" FROM \"SalesOrders\" AS S INNER JOIN \"BusinessPartners\" AS B ON S.\"PARTNERID\" = B.\"PARTNERID\" INNER JOIN \"Addresses\" AS A ON B.\"ADDRESSID\" = A.\"ADDRESSID\" GROUP BY A.\"COUNTRY\"",
+      "query": {
+        "SELECT": {
+          "from": {
+            "join": "inner",
+            "args": [
+              {
+                "join": "inner",
+                "args": [
+                  {
+                    "ref": [
+                      "SalesOrders"
+                    ],
+                    "as": "S"
+                  },
+                  {
+                    "ref": [
+                      "BusinessPartners"
+                    ],
+                    "as": "B"
+                  }
+                ],
+                "on": [
+                  {
+                    "ref": [
+                      "S",
+                      "PARTNERID"
+                    ]
+                  },
+                  "=",
+                  {
+                    "ref": [
+                      "B",
+                      "PARTNERID"
+                    ]
+                  }
+                ]
+              },
+              {
+                "ref": [
+                  "Addresses"
+                ],
+                "as": "A"
+              }
+            ],
+            "on": [
+              {
+                "ref": [
+                  "B",
+                  "ADDRESSID"
+                ]
+              },
+              "=",
+              {
+                "ref": [
+                  "A",
+                  "ADDRESSID"
+                ]
+              }
+            ]
+          },
+          "columns": [
+            {
+              "ref": [
+                "A",
+                "COUNTRY"
+              ],
+              "as": "COUNTRY"
+            },
+            {
+              "func": "count",
+              "args": [
+                {
+                  "ref": [
+                    "S",
+                    "SALESORDERID"
+                  ]
+                }
+              ],
+              "as": "ORDER_COUNT"
+            },
+            {
+              "func": "sum",
+              "args": [
+                {
+                  "ref": [
+                    "S",
+                    "NETAMOUNT"
+                  ]
+                }
+              ],
+              "as": "NET_AMOUNT"
+            }
+          ],
+          "groupBy": [
+            {
+              "ref": [
+                "A",
+                "COUNTRY"
+              ]
+            }
+          ]
+        }
+      },
+      "elements": {
+        "COUNTRY": {
+          "@EndUserText.label": "Country",
+          "type": "cds.String",
+          "length": 3
+        },
+        "ORDER_COUNT": {
+          "@EndUserText.label": "Order Count",
+          "type": "cds.Integer64"
+        },
+        "NET_AMOUNT": {
+          "@EndUserText.label": "Net Amount",
+          "type": "cds.Decimal",
+          "precision": 31,
+          "scale": 2
+        }
+      }
+    }
+  }
+}

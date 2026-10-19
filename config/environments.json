@@ -1,0 +1,6 @@
+{
+  "_comment": "Pipeline environment -> Datasphere space technical name. The SAP trial tenant has ONE space and no rights to create more, so dev, test and prod all point at it: every stage makes real CLI calls on real objects, promotion just lands in the same space. On a tenant with three spaces, change test/prod to e.g. TEST_SALES / PROD_SALES. Hosts and secrets are never stored here (.env or CI/CD variables).",
+  "dev":  { "space": "SPACE_00031222" },
+  "test": { "space": "SPACE_00031222" },
+  "prod": { "space": "SPACE_00031222" }
+}

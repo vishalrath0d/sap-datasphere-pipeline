@@ -1,0 +1,12 @@
+# never commit credentials or CLI caches
+secrets.json
+*.secrets.json
+.env
+.datasphere/
+.@sap/
+node_modules/
+
+# simulator state and pipeline outputs
+.mock-state/
+reports/*
+!reports/.gitkeep

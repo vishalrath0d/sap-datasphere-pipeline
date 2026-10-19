@@ -1,0 +1,105 @@
+{
+  "definitions": {
+    "BusinessPartners": {
+      "kind": "entity",
+      "@EndUserText.label": "Business Partners",
+      "@ObjectModel.modelingPattern": {
+        "#": "DATA_STRUCTURE"
+      },
+      "@ObjectModel.supportedCapabilities": [
+        {
+          "#": "DATA_STRUCTURE"
+        }
+      ],
+      "elements": {
+        "PARTNERID": {
+          "@EndUserText.label": "Partner ID",
+          "type": "cds.String",
+          "key": true,
+          "length": 10
+        },
+        "PARTNERROLE": {
+          "@EndUserText.label": "Partner role",
+          "type": "cds.String",
+          "length": 3
+        },
+        "EMAILADDRESS": {
+          "@EndUserText.label": "Email address",
+          "type": "cds.String",
+          "length": 255
+        },
+        "PHONENUMBER": {
+          "@EndUserText.label": "Phone number",
+          "type": "cds.String",
+          "length": 30
+        },
+        "FAXNUMBER": {
+          "@EndUserText.label": "Fax number",
+          "type": "cds.String",
+          "length": 30
+        },
+        "WEBADDRESS": {
+          "@EndUserText.label": "Web address",
+          "type": "cds.String",
+          "length": 1024
+        },
+        "ADDRESSID": {
+          "@EndUserText.label": "Address ID",
+          "type": "cds.String",
+          "length": 10
+        },
+        "COMPANYNAME": {
+          "@EndUserText.label": "Company name",
+          "type": "cds.String",
+          "length": 80
+        },
+        "LEGALFORM": {
+          "@EndUserText.label": "Legal form",
+          "type": "cds.String",
+          "length": 10
+        },
+        "CREATEDBY": {
+          "@EndUserText.label": "Created by",
+          "type": "cds.String",
+          "length": 10
+        },
+        "CREATEDAT": {
+          "@EndUserText.label": "Created at date",
+          "type": "cds.Date"
+        },
+        "CHANGEDBY": {
+          "@EndUserText.label": "Changed by",
+          "type": "cds.String",
+          "length": 10
+        },
+        "CHANGEDAT": {
+          "@EndUserText.label": "Changed at date",
+          "type": "cds.Date"
+        },
+        "CURRENCY": {
+          "@EndUserText.label": "Currency key",
+          "type": "cds.String",
+          "length": 5
+        },
+        "_Addresses": {
+          "on": [
+            {
+              "ref": [
+                "ADDRESSID"
+              ]
+            },
+            "=",
+            {
+              "ref": [
+                "_Addresses",
+                "ADDRESSID"
+              ]
+            }
+          ],
+          "target": "Addresses",
+          "type": "cds.Association"
+        }
+      }
+    }
+  }
+}

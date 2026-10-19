@@ -1,0 +1,71 @@
+{
+  "definitions": {
+    "V_TOP_COUNTRIES": {
+      "kind": "entity",
+      "@EndUserText.label": "Top Countries by Net Sales",
+      "@ObjectModel.modelingPattern": {
+        "#": "DATA_STRUCTURE"
+      },
+      "@ObjectModel.supportedCapabilities": [
+        {
+          "#": "DATA_STRUCTURE"
+        }
+      ],
+      "@DataWarehouse.sqlEditor.query": "SELECT \"COUNTRY\", \"ORDER_COUNT\", \"NET_AMOUNT\" FROM \"V_SALES_BY_COUNTRY\" WHERE \"NET_AMOUNT\" > 1000000",
+      "query": {
+        "SELECT": {
+          "from": {
+            "ref": [
+              "V_SALES_BY_COUNTRY"
+            ]
+          },
+          "columns": [
+            {
+              "ref": [
+                "COUNTRY"
+              ]
+            },
+            {
+              "ref": [
+                "ORDER_COUNT"
+              ]
+            },
+            {
+              "ref": [
+                "NET_AMOUNT"
+              ]
+            }
+          ],
+          "where": [
+            {
+              "ref": [
+                "NET_AMOUNT"
+              ]
+            },
+            ">",
+            {
+              "val": 1000000
+            }
+          ]
+        }
+      },
+      "elements": {
+        "COUNTRY": {
+          "@EndUserText.label": "Country",
+          "type": "cds.String",
+          "length": 3
+        },
+        "ORDER_COUNT": {
+          "@EndUserText.label": "Order Count",
+          "type": "cds.Integer64"
+        },
+        "NET_AMOUNT": {
+          "@EndUserText.label": "Net Amount",
+          "type": "cds.Decimal",
+          "precision": 31,
+          "scale": 2
+        }
+      }
+    }
+  }
+}

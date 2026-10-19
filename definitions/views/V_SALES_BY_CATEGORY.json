@@ -1,0 +1,168 @@
+{
+  "definitions": {
+    "V_SALES_BY_CATEGORY": {
+      "kind": "entity",
+      "@EndUserText.label": "Sales by Product Category",
+      "@ObjectModel.modelingPattern": {
+        "#": "DATA_STRUCTURE"
+      },
+      "@ObjectModel.supportedCapabilities": [
+        {
+          "#": "DATA_STRUCTURE"
+        }
+      ],
+      "@DataWarehouse.sqlEditor.query": "SELECT P.\"PRODCATEGORYID\" AS \"PRODCATEGORYID\", T.\"SHORT_DESCR\" AS \"CATEGORY\", SUM(I.\"NETAMOUNT\") AS \"NET_AMOUNT\", SUM(I.\"QUANTITY\") AS \"QUANTITY\" FROM \"SalesOrderItems\" AS I INNER JOIN \"Products\" AS P ON I.\"PRODUCTID\" = P.\"PRODUCTID\" LEFT OUTER JOIN \"ProductCategoryText\" AS T ON P.\"PRODCATEGORYID\" = T.\"PRODCATEGORYID\" AND T.\"LANGUAGE\" = 'EN' GROUP BY P.\"PRODCATEGORYID\", T.\"SHORT_DESCR\"",
+      "query": {
+        "SELECT": {
+          "from": {
+            "join": "left",
+            "args": [
+              {
+                "join": "inner",
+                "args": [
+                  {
+                    "ref": [
+                      "SalesOrderItems"
+                    ],
+                    "as": "I"
+                  },
+                  {
+                    "ref": [
+                      "Products"
+                    ],
+                    "as": "P"
+                  }
+                ],
+                "on": [
+                  {
+                    "ref": [
+                      "I",
+                      "PRODUCTID"
+                    ]
+                  },
+                  "=",
+                  {
+                    "ref": [
+                      "P",
+                      "PRODUCTID"
+                    ]
+                  }
+                ]
+              },
+              {
+                "ref": [
+                  "ProductCategoryText"
+                ],
+                "as": "T"
+              }
+            ],
+            "on": [
+              {
+                "ref": [
+                  "P",
+                  "PRODCATEGORYID"
+                ]
+              },
+              "=",
+              {
+                "ref": [
+                  "T",
+                  "PRODCATEGORYID"
+                ]
+              },
+              "and",
+              {
+                "ref": [
+                  "T",
+                  "LANGUAGE"
+                ]
+              },
+              "=",
+              {
+                "val": "EN"
+              }
+            ]
+          },
+          "columns": [
+            {
+              "ref": [
+                "P",
+                "PRODCATEGORYID"
+              ],
+              "as": "PRODCATEGORYID"
+            },
+            {
+              "ref": [
+                "T",
+                "SHORT_DESCR"
+              ],
+              "as": "CATEGORY"
+            },
+            {
+              "func": "sum",
+              "args": [
+                {
+                  "ref": [
+                    "I",
+                    "NETAMOUNT"
+                  ]
+                }
+              ],
+              "as": "NET_AMOUNT"
+            },
+            {
+              "func": "sum",
+              "args": [
+                {
+                  "ref": [
+                    "I",
+                    "QUANTITY"
+                  ]
+                }
+              ],
+              "as": "QUANTITY"
+            }
+          ],
+          "groupBy": [
+            {
+              "ref": [
+                "P",
+                "PRODCATEGORYID"
+              ]
+            },
+            {
+              "ref": [
+                "T",
+                "SHORT_DESCR"
+              ]
+            }
+          ]
+        }
+      },
+      "elements": {
+        "PRODCATEGORYID": {
+          "@EndUserText.label": "Product Category ID",
+          "type": "cds.String",
+          "length": 2
+        },
+        "CATEGORY": {
+          "@EndUserText.label": "Product Category",
+          "type": "cds.String",
+          "length": 20
+        },
+        "NET_AMOUNT": {
+          "@EndUserText.label": "Net Amount",
+          "type": "cds.Decimal",
+          "precision": 31,
+          "scale": 2
+        },
+        "QUANTITY": {
+          "@EndUserText.label": "Quantity",
+          "type": "cds.Decimal",
+          "precision": 31,
+          "scale": 3
+        }
+      }
+    }
+  }
+}

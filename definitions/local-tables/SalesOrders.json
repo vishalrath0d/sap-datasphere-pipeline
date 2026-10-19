@@ -1,0 +1,159 @@
+{
+  "definitions": {
+    "SalesOrders": {
+      "kind": "entity",
+      "@EndUserText.label": "Sales Orders",
+      "@ObjectModel.modelingPattern": {
+        "#": "DATA_STRUCTURE"
+      },
+      "@ObjectModel.supportedCapabilities": [
+        {
+          "#": "DATA_STRUCTURE"
+        }
+      ],
+      "elements": {
+        "SALESORDERID": {
+          "@EndUserText.label": "Sales order ID",
+          "type": "cds.String",
+          "key": true,
+          "length": 10
+        },
+        "CREATEDBY": {
+          "@EndUserText.label": "Created by",
+          "type": "cds.String",
+          "length": 10
+        },
+        "CREATEDAT": {
+          "@EndUserText.label": "Created at date",
+          "type": "cds.Date"
+        },
+        "CHANGEDBY": {
+          "@EndUserText.label": "Changed by",
+          "type": "cds.String",
+          "length": 10
+        },
+        "CHANGEDAT": {
+          "@EndUserText.label": "Changed at date",
+          "type": "cds.Date"
+        },
+        "FISCVARIANT": {
+          "@EndUserText.label": "Fiscal year variant",
+          "type": "cds.String",
+          "length": 2
+        },
+        "FISCALYEARPERIOD": {
+          "@EndUserText.label": "Fiscal year period",
+          "type": "cds.String",
+          "length": 7
+        },
+        "NOTEID": {
+          "@EndUserText.label": "Note ID",
+          "type": "cds.String",
+          "length": 10
+        },
+        "PARTNERID": {
+          "@EndUserText.label": "Partner ID",
+          "type": "cds.String",
+          "length": 10
+        },
+        "SALESORG": {
+          "@EndUserText.label": "Sales organisation",
+          "type": "cds.String",
+          "length": 4
+        },
+        "CURRENCY": {
+          "@EndUserText.label": "Currency key",
+          "type": "cds.String",
+          "length": 5
+        },
+        "GROSSAMOUNT": {
+          "@EndUserText.label": "Gross amount",
+          "type": "cds.Decimal",
+          "precision": 15,
+          "scale": 2
+        },
+        "NETAMOUNT": {
+          "@EndUserText.label": "Net amount",
+          "type": "cds.Decimal",
+          "precision": 15,
+          "scale": 2
+        },
+        "TAXAMOUNT": {
+          "@EndUserText.label": "Tax amount",
+          "type": "cds.Decimal",
+          "precision": 15,
+          "scale": 2
+        },
+        "LIFECYCLESTATUS": {
+          "@EndUserText.label": "Life cycle status",
+          "type": "cds.String",
+          "length": 1
+        },
+        "BILLINGSTATUS": {
+          "@EndUserText.label": "Billing status",
+          "type": "cds.String",
+          "length": 1
+        },
+        "DELIVERYSTATUS": {
+          "@EndUserText.label": "Delivery status",
+          "type": "cds.String",
+          "length": 1
+        },
+        "_SalesOrderItems": {
+          "on": [
+            {
+              "ref": [
+                "SALESORDERID"
+              ]
+            },
+            "=",
+            {
+              "ref": [
+                "_SalesOrderItems",
+                "SALESORDERID"
+              ]
+            }
+          ],
+          "target": "SalesOrderItems",
+          "type": "cds.Association"
+        },
+        "_BusinessPartners": {
+          "on": [
+            {
+              "ref": [
+                "PARTNERID"
+              ]
+            },
+            "=",
+            {
+              "ref": [
+                "_BusinessPartners",
+                "PARTNERID"
+              ]
+            }
+          ],
+          "target": "BusinessPartners",
+          "type": "cds.Association"
+        },
+        "_Employees": {
+          "on": [
+            {
+              "ref": [
+                "CREATEDBY"
+              ]
+            },
+            "=",
+            {
+              "ref": [
+                "_Employees",
+                "EMPLOYEEID"
+              ]
+            }
+          ],
+          "target": "Employees",
+          "type": "cds.Association"
+        }
+      }
+    }
+  }
+}

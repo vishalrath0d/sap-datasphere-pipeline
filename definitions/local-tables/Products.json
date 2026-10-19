@@ -1,0 +1,152 @@
+{
+  "definitions": {
+    "Products": {
+      "kind": "entity",
+      "@EndUserText.label": "Products",
+      "@ObjectModel.modelingPattern": {
+        "#": "DATA_STRUCTURE"
+      },
+      "@ObjectModel.supportedCapabilities": [
+        {
+          "#": "DATA_STRUCTURE"
+        }
+      ],
+      "elements": {
+        "PRODUCTID": {
+          "@EndUserText.label": "Product ID",
+          "type": "cds.String",
+          "key": true,
+          "length": 10
+        },
+        "TYPECODE": {
+          "@EndUserText.label": "Type code",
+          "type": "cds.String",
+          "length": 2
+        },
+        "PRODCATEGORYID": {
+          "@EndUserText.label": "Product category ID",
+          "type": "cds.String",
+          "length": 2
+        },
+        "CREATEDBY": {
+          "@EndUserText.label": "Created by",
+          "type": "cds.String",
+          "length": 10
+        },
+        "CREATEDAT": {
+          "@EndUserText.label": "Created at date",
+          "type": "cds.Date"
+        },
+        "CHANGEDBY": {
+          "@EndUserText.label": "Changed by",
+          "type": "cds.String",
+          "length": 10
+        },
+        "CHANGEDAT": {
+          "@EndUserText.label": "Changed at date",
+          "type": "cds.Date"
+        },
+        "SUPPLIER_PARTNERID": {
+          "@EndUserText.label": "Supplier partner ID",
+          "type": "cds.String",
+          "length": 10
+        },
+        "TAXTARIFFCODE": {
+          "@EndUserText.label": "Tax tariff code",
+          "type": "cds.Integer"
+        },
+        "QUANTITYUNIT": {
+          "@EndUserText.label": "Quantity unit",
+          "type": "cds.String",
+          "length": 3
+        },
+        "WEIGHTMEASURE": {
+          "@EndUserText.label": "Weight measure",
+          "type": "cds.Decimal",
+          "precision": 13,
+          "scale": 3
+        },
+        "WEIGHTUNIT": {
+          "@EndUserText.label": "Weight unit",
+          "type": "cds.String",
+          "length": 3
+        },
+        "CURRENCY": {
+          "@EndUserText.label": "Currency key",
+          "type": "cds.String",
+          "length": 5
+        },
+        "PRICE": {
+          "@EndUserText.label": "Price",
+          "type": "cds.Decimal",
+          "precision": 15,
+          "scale": 2
+        },
+        "WIDTH": {
+          "@EndUserText.label": "Width",
+          "type": "cds.Decimal",
+          "precision": 13,
+          "scale": 3
+        },
+        "DEPTH": {
+          "@EndUserText.label": "Depth",
+          "type": "cds.Decimal",
+          "precision": 13,
+          "scale": 3
+        },
+        "HEIGHT": {
+          "@EndUserText.label": "Height",
+          "type": "cds.Decimal",
+          "precision": 13,
+          "scale": 3
+        },
+        "DIMENSIONUNIT": {
+          "@EndUserText.label": "Dimension unit",
+          "type": "cds.String",
+          "length": 3
+        },
+        "PRODUCTPICURL": {
+          "@EndUserText.label": "Product picture URL",
+          "type": "cds.String",
+          "length": 255
+        },
+        "_ProductTexts": {
+          "on": [
+            {
+              "ref": [
+                "PRODUCTID"
+              ]
+            },
+            "=",
+            {
+              "ref": [
+                "_ProductTexts",
+                "PRODUCTID"
+              ]
+            }
+          ],
+          "target": "ProductTexts",
+          "type": "cds.Association"
+        },
+        "_ProductCategories": {
+          "on": [
+            {
+              "ref": [
+                "PRODCATEGORYID"
+              ]
+            },
+            "=",
+            {
+              "ref": [
+                "_ProductCategories",
+                "PRODCATEGORYID"
+              ]
+            }
+          ],
+          "target": "ProductCategories",
+          "type": "cds.Association"
+        }
+      }
+    }
+  }
+}

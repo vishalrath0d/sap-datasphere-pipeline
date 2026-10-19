@@ -1,0 +1,8 @@
+{
+  "_comment": "Rules enforced by scripts/py/validate.py in the 'validate' pipeline stage. This is the 'controlled change management' part: the merge request cannot be merged if it breaks these.",
+  "name_regex": "^[A-Za-z][A-Za-z0-9_]{0,49}$",
+  "required_prefix": {
+    "views": "V_"
+  },
+  "external_sources": []
+}

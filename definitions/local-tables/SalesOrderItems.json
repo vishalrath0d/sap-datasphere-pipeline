@@ -1,0 +1,106 @@
+{
+  "definitions": {
+    "SalesOrderItems": {
+      "kind": "entity",
+      "@EndUserText.label": "Sales Order Items",
+      "@ObjectModel.modelingPattern": {
+        "#": "DATA_STRUCTURE"
+      },
+      "@ObjectModel.supportedCapabilities": [
+        {
+          "#": "DATA_STRUCTURE"
+        }
+      ],
+      "elements": {
+        "SALESORDERID": {
+          "@EndUserText.label": "Sales order ID",
+          "type": "cds.String",
+          "key": true,
+          "length": 10
+        },
+        "SALESORDERITEM": {
+          "@EndUserText.label": "Sales order item",
+          "type": "cds.String",
+          "key": true,
+          "length": 10
+        },
+        "PRODUCTID": {
+          "@EndUserText.label": "Product ID",
+          "type": "cds.String",
+          "length": 10
+        },
+        "NOTEID": {
+          "@EndUserText.label": "Note ID",
+          "type": "cds.String",
+          "length": 10
+        },
+        "CURRENCY": {
+          "@EndUserText.label": "Currency key",
+          "type": "cds.String",
+          "length": 5
+        },
+        "GROSSAMOUNT": {
+          "@EndUserText.label": "Gross amount",
+          "type": "cds.Decimal",
+          "precision": 15,
+          "scale": 2
+        },
+        "NETAMOUNT": {
+          "@EndUserText.label": "Net amount",
+          "type": "cds.Decimal",
+          "precision": 15,
+          "scale": 2
+        },
+        "TAXAMOUNT": {
+          "@EndUserText.label": "Tax amount",
+          "type": "cds.Decimal",
+          "precision": 15,
+          "scale": 2
+        },
+        "ITEMATPSTATUS": {
+          "@EndUserText.label": "Item available to promise status",
+          "type": "cds.String",
+          "length": 1
+        },
+        "OPITEMPOS": {
+          "@EndUserText.label": "Open Item",
+          "type": "cds.String",
+          "length": 10
+        },
+        "QUANTITY": {
+          "@EndUserText.label": "Quantity",
+          "type": "cds.Decimal",
+          "precision": 13,
+          "scale": 3
+        },
+        "QUANTITYUNIT": {
+          "@EndUserText.label": "Quantity unit",
+          "type": "cds.String",
+          "length": 3
+        },
+        "DELIVERYDATE": {
+          "@EndUserText.label": "Delivery date",
+          "type": "cds.Date"
+        },
+        "_Products": {
+          "on": [
+            {
+              "ref": [
+                "PRODUCTID"
+              ]
+            },
+            "=",
+            {
+              "ref": [
+                "_Products",
+                "PRODUCTID"
+              ]
+            }
+          ],
+          "target": "Products",
+          "type": "cds.Association"
+        }
+      }
+    }
+  }
+}

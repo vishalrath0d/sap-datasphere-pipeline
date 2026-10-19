@@ -1,0 +1,145 @@
+# SAP Datasphere GitOps pipeline.
+# Every job runs `scripts/pipeline.sh stage <name>`; `make pipeline` runs the same stages locally.
+#
+#   merge request : validate -> plan                       (no tenant access needed)
+#   main branch   : validate -> plan -> deploy-test        (automatic)
+#   tag vX.Y.Z    : validate -> plan -> deploy-test -> deploy-prod (manual click, protected environment)
+#   schedules     : export-dev (opens an MR with changes made in the DEV UI) and drift checks
+#
+# Starts in DS_MODE=mock so it is green on day one without a tenant.
+# Switch to the real SAP Datasphere CLI by setting DS_MODE=real in Settings > CI/CD > Variables,
+# plus DS_HOST, DS_CLIENT_ID, DS_CLIENT_SECRET, DS_TOKEN_URL of an OAuth client with purpose
+# "Technical User" (client credentials - no browser, no 30-day token expiry). See docs/00-RUNBOOK.md.
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_TAG
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "web"
+
+stages: [validate, plan, test, prod, ops]
+
+variables:
+  NODE_IMAGE: "node:22-bookworm"   # CLI supports Node 20-24; the image also has bash, git, python3
+  DS_MODE: "mock"                  # mock | real
+  DS_CLI_VERSION: "2026.21.0"      # verified 2026-10-19; follows the Datasphere wave - bump deliberately
+  MOCK_DS_STATE: "$CI_PROJECT_DIR/.mock-state"
+  GIT_DEPTH: "50"
+
+default:
+  image: $NODE_IMAGE               # has bash, git, python3 and npm
+  interruptible: true
+
+.cli:
+  before_script:
+    - bash scripts/install-cli.sh
+
+# ---------------------------------------------------------------- validate / plan
+validate:
+  stage: validate
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"
+  script:
+    - bash scripts/pipeline.sh stage validate
+  artifacts:
+    when: always
+    reports:
+      junit: reports/validate.xml
+
+plan:
+  stage: plan
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"
+  script:
+    - bash scripts/pipeline.sh stage plan
+  artifacts:
+    paths: [reports/plan.txt]
+
+# ---------------------------------------------------------------- connectivity check
+# Run Pipeline (web) > preflight: proves the runner can log in and read the DEV space
+# before anything tries to deploy. Read-only.
+preflight:
+  extends: .cli
+  stage: validate
+  environment:
+    name: dev
+    action: access
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+      when: manual
+      allow_failure: true
+  script:
+    - bash scripts/pipeline.sh stage preflight
+
+# ---------------------------------------------------------------- deploy
+deploy-test:
+  extends: .cli
+  stage: test
+  needs: [validate, plan]
+  environment:
+    name: test
+  resource_group: datasphere-test       # never two deployments into the same environment at once
+  rules:
+    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "schedule"
+  script:
+    - bash scripts/pipeline.sh stage deploy-test
+  artifacts:
+    when: always
+    paths: [reports/deploy-test.tsv, .mock-state/]   # .mock-state only exists in mock mode (lets prod see test's simulated state)
+
+deploy-prod:
+  extends: .cli
+  stage: prod
+  needs: [deploy-test]
+  environment:
+    name: prod                          # make it a Protected Environment (docs/03) so only approvers can click
+  resource_group: datasphere-prod
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/    # only an approved, tagged version reaches prod
+      when: manual
+      allow_failure: false                         # pipeline stays blocked until someone approves
+  script:
+    - bash scripts/pipeline.sh stage deploy-prod
+  artifacts:
+    when: always
+    paths: [reports/deploy-prod.tsv]
+
+# ---------------------------------------------------------------- scheduled operations
+# Create schedules in CI/CD > Schedules and set the variable SCHEDULE_JOB on each.
+export-dev:
+  extends: .cli
+  stage: ops
+  environment:
+    name: dev
+    action: access
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_JOB == "export-dev"
+  script:
+    - bash scripts/pipeline.sh stage export-dev     # export + merge request with the differences
+
+.drift:
+  extends: .cli
+  stage: ops
+
+drift-test:
+  extends: .drift
+  environment:
+    name: test
+    action: access
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_JOB == "drift-check"
+  script:
+    - bash scripts/pipeline.sh stage drift-test
+
+drift-prod:
+  extends: .drift
+  environment:
+    name: prod
+    action: access
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_JOB == "drift-check"
+  script:
+    - bash scripts/pipeline.sh stage drift-prod

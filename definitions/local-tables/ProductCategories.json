@@ -1,0 +1,51 @@
+{
+  "definitions": {
+    "ProductCategories": {
+      "kind": "entity",
+      "@EndUserText.label": "Product Categories",
+      "@ObjectModel.modelingPattern": {
+        "#": "DATA_STRUCTURE"
+      },
+      "@ObjectModel.supportedCapabilities": [
+        {
+          "#": "DATA_STRUCTURE"
+        }
+      ],
+      "elements": {
+        "PRODCATEGORYID": {
+          "@EndUserText.label": "Product category ID",
+          "type": "cds.String",
+          "key": true,
+          "length": 2
+        },
+        "CREATEDBY": {
+          "@EndUserText.label": "Created by",
+          "type": "cds.String",
+          "length": 10
+        },
+        "CREATEDAT": {
+          "@EndUserText.label": "Created at date",
+          "type": "cds.Date"
+        },
+        "_ProductCategoryText": {
+          "on": [
+            {
+              "ref": [
+                "PRODCATEGORYID"
+              ]
+            },
+            "=",
+            {
+              "ref": [
+                "_ProductCategoryText",
+                "PRODCATEGORYID"
+              ]
+            }
+          ],
+          "target": "ProductCategoryText",
+          "type": "cds.Association"
+        }
+      }
+    }
+  }
+}

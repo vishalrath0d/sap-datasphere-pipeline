@@ -1,0 +1,45 @@
+{
+  "definitions": {
+    "ProductTexts": {
+      "kind": "entity",
+      "@EndUserText.label": "Product Texts",
+      "@ObjectModel.modelingPattern": {
+        "#": "DATA_STRUCTURE"
+      },
+      "@ObjectModel.supportedCapabilities": [
+        {
+          "#": "DATA_STRUCTURE"
+        }
+      ],
+      "elements": {
+        "PRODUCTID": {
+          "@EndUserText.label": "Product ID",
+          "type": "cds.String",
+          "key": true,
+          "length": 10
+        },
+        "LANGUAGE": {
+          "@EndUserText.label": "Language",
+          "type": "cds.String",
+          "key": true,
+          "length": 2
+        },
+        "SHORT_DESCR": {
+          "@EndUserText.label": "Short description",
+          "type": "cds.String",
+          "length": 20
+        },
+        "MEDIUM_DESCR": {
+          "@EndUserText.label": "Medium description",
+          "type": "cds.String",
+          "length": 40
+        },
+        "LONG_DESCR": {
+          "@EndUserText.label": "Long descripition",
+          "type": "cds.String",
+          "length": 10
+        }
+      }
+    }
+  }
+}

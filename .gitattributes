@@ -1,0 +1,6 @@
+# Keep shell scripts LF even if you work on Windows (CRLF breaks bash in the CI container)
+*.sh   text eol=lf
+*.py   text eol=lf
+*.yml  text eol=lf
+*.json text eol=lf
+tools/mock-datasphere/datasphere text eol=lf

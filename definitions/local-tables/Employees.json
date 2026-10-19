@@ -1,0 +1,101 @@
+{
+  "definitions": {
+    "Employees": {
+      "kind": "entity",
+      "@EndUserText.label": "Employees",
+      "@ObjectModel.modelingPattern": {
+        "#": "DATA_STRUCTURE"
+      },
+      "@ObjectModel.supportedCapabilities": [
+        {
+          "#": "DATA_STRUCTURE"
+        }
+      ],
+      "elements": {
+        "EMPLOYEEID": {
+          "@EndUserText.label": "Employee ID",
+          "type": "cds.String",
+          "key": true,
+          "length": 10
+        },
+        "NAME_FIRST": {
+          "@EndUserText.label": "First name",
+          "type": "cds.String",
+          "length": 40
+        },
+        "NAME_MIDDLE": {
+          "@EndUserText.label": "Middle name",
+          "type": "cds.String",
+          "length": 40
+        },
+        "NAME_LAST": {
+          "@EndUserText.label": "Last name",
+          "type": "cds.String",
+          "length": 40
+        },
+        "NAME_INITIALS": {
+          "@EndUserText.label": "Name initials",
+          "type": "cds.String",
+          "length": 10
+        },
+        "SEX": {
+          "@EndUserText.label": "Sex",
+          "type": "cds.String",
+          "length": 1
+        },
+        "LANGUAGE": {
+          "@EndUserText.label": "Language",
+          "type": "cds.String",
+          "length": 2
+        },
+        "PHONENUMBER": {
+          "@EndUserText.label": "Phone number",
+          "type": "cds.String",
+          "length": 30
+        },
+        "EMAILADDRESS": {
+          "@EndUserText.label": "Email address",
+          "type": "cds.String",
+          "length": 255
+        },
+        "LOGINNAME": {
+          "@EndUserText.label": "Login name",
+          "type": "cds.String",
+          "length": 12
+        },
+        "ADDRESSID": {
+          "@EndUserText.label": "Address ID",
+          "type": "cds.String",
+          "length": 10
+        },
+        "VALIDITY_STARTDATE": {
+          "@EndUserText.label": "Validity start date",
+          "type": "cds.Date"
+        },
+        "VALIDITY_ENDDATE": {
+          "@EndUserText.label": "Validity end date",
+          "type": "cds.Date",
+          "key": true
+        },
+        "_Addresses": {
+          "on": [
+            {
+              "ref": [
+                "ADDRESSID"
+              ]
+            },
+            "=",
+            {
+              "ref": [
+                "_Addresses",
+                "ADDRESSID"
+              ]
+            }
+          ],
+          "target": "Addresses",
+          "type": "cds.Association"
+        }
+      }
+    }
+  }
+}
