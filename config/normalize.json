@@ -1,6 +1,8 @@
 {
-  "_comment": "Applied to every object exported from Datasphere so Git diffs show real changes only. strip_keys: exact key names (any nesting level) to drop if your exports contain noisy fields such as timestamps. own_definition_only: keep only the object's own entry in 'definitions' (SAP: CLI files must not carry their dependencies). Keys are NOT sorted: in CSN the order of 'elements' is the column order.",
-  "strip_keys": [],
+  "_comment": "Applied to every object exported from Datasphere so Git diffs show real changes only. strip_keys: exact key names (any nesting level) to drop if your exports contain noisy fields such as timestamps. own_definition_only: keep only the object's own entry in 'definitions' (SAP: CLI files must not carry their dependencies). Keys are NOT sorted: in CSN the order of 'elements' is the column order. '_meta' is stripped because Datasphere adds server bookkeeping (_meta.dependencies.folderAssignment) to every object on read - seen on the trial tenant 2026-10-19.",
+  "strip_keys": [
+    "_meta"
+  ],
   "own_definition_only": true,
   "indent": 2
 }
