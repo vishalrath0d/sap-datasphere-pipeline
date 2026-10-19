@@ -68,7 +68,7 @@ get_passcode() {
   fi
   [ -t 2 ] || die "no passcode: the Chrome helper failed and there is no terminal to ask"
   log "get a passcode from $url (refresh the page for each new one)"
-  [ "${DS_PASSCODE_OPEN:-1}" = "1" ] && command -v open >/dev/null && open "$url"
+  if [ "${DS_PASSCODE_OPEN:-1}" = "1" ]; then open_url "$url" || true; fi
   read -r -s -p "Passcode: " code </dev/tty; echo >&2
   [ -n "$code" ] || die "empty passcode"
   printf '%s' "$code"

@@ -1,105 +1,114 @@
 # Datasphere GitOps pipeline
 
-Hands-on project that does what the client role describes:
+A working proof of concept for this job profile:
 
-| Job-profile bullet | Where it lives in this repo |
+| Job-profile bullet | What does it here |
 |---|---|
-| **Automated extraction** - artifacts exported as machine-readable definitions with scripts + the SAP Datasphere CLI | `scripts/export.sh` (CLI `objects <type> read` -> normalised JSON/CSN) |
-| **Version control** - definitions + deployment scripts in a central GitLab repo, traceability, controlled change | `definitions/`, `scripts/`, merge-request gate (`validate` job), `reports/deploy-*.tsv` audit trail |
-| **CI/CD deployment** - GitLab pipelines export from source and deploy approved versions to target spaces/tenants via the CLI | `.gitlab-ci.yml` -> `scripts/deploy.sh` (dependency-ordered, idempotent), manual prod approval on tags |
+| **Automated extraction** - SAP Datasphere artifacts exported as machine-readable definitions with automated scripts and the SAP Datasphere CLI | `scripts/export.sh` - `datasphere objects <type> read` -> normalised CSN/JSON, one file per object |
+| **Version control** - definitions and deployment scripts in a central GitLab repository, traceability, controlled change | `definitions/` + `scripts/` in Git; merge-request gate (`validate`); audit trail `reports/deploy-*.tsv` |
+| **CI/CD deployment** - GitLab pipelines export from source environments and deploy approved versions to target spaces/tenants through the CLI | `.gitlab-ci.yml` -> `scripts/deploy.sh` (dependency order, idempotent); manual approval for prod |
 
-Extras that make it production-shaped: drift detection (`scripts/drift-check.sh`), export-to-merge-request bot (`scripts/export-to-mr.sh`), JUnit validation report, per-environment secrets.
+Plus: drift detection (did someone change PROD by hand?), export-to-merge-request on a schedule,
+validation report, one command that runs the whole pipeline locally.
 
-## Read this first - three honest caveats
+**How it all works - flow, code and syntax explained: [docs/06-how-it-works.md](docs/06-how-it-works.md).**
 
-1. **Your BTP trial probably cannot create Datasphere.** I could not confirm Datasphere is in the BTP *trial* catalog (a community thread reports it can't be added there), the 30-day *Basic Trial* is a shared tenant without admin/integration rights (so no OAuth client, so no CLI), and a real tenant normally comes from a free-tier *Pay-As-You-Go* account. Check in 2 minutes and pick a path: [docs/01](docs/01-datasphere-tenant-and-ui-tour.md).
-2. **The repo runs without any tenant.** `DS_MODE=mock` (default) swaps the SAP CLI for a small simulator in `tools/mock-datasphere/`, so you can see and demo the whole loop today. Mock mode proves the pipeline logic, **not** that Datasphere accepts these files.
-3. **The sample definitions are illustrative.** Real CSN comes from your tenant. The first thing to do on a real tenant is export your own objects (`docs/02`, step 5) and commit those instead.
+---
 
-What is verified against SAP's docs vs. assumed is listed at the bottom.
+## Status - proven against a real SAP Datasphere tenant (2026-10-19)
 
-## One command
+On the SAP Datasphere trial tenant (`academydatasphere-1.ap11.hcs.cloud.sap`, space `SPACE_00031222`),
+with the real SAP Datasphere CLI 2026.21.0:
 
-```bash
-cp .env.example .env     # real tenant settings (trial: passcode mode) - or DS_MODE=mock
-make passcode-start      # trial only: sign in once in the window that opens
-make bootstrap           # first real run only: deploy, then commit the tenant's canonical CSN
-make pipeline            # everything GitLab CI runs, locally, against the tenant in .env
-```
+- `make bootstrap`: **12 objects created** - 9 local tables from SAP's official *Bike Sales* sample
+  (with associations) + 3 SQL views (one view on another view), deployed in dependency order.
+- `make pipeline`: preflight, validate, plan, **deploy (12 updated)**, **drift checks clean**, export.
+- The only difference between Git and the tenant's stored form was a `_meta` bookkeeping block,
+  now stripped on export.
 
-What gets deployed: SAP's official **Bike Sales** sample (9 local tables with associations, from
-[SAP-samples/datasphere-content](https://github.com/SAP-samples/datasphere-content), Apache 2.0)
-plus 3 SQL views on top - see `sample-data/sap-bike-sales/NOTICE.md`.
+---
 
-Step-by-step for the SAP trial tenant: [docs/00-RUNBOOK.md](docs/00-RUNBOOK.md), Track T.
+## Quick start (POC on the trial tenant)
 
-## 2-minute quickstart (no tenant)
+Needs: **bash**, **git**, **Python 3.8+**, **Node.js 22-24**, **Google Chrome or Chromium**
+(passcode mode only), **make** (optional - every target is one script line).
 
 ```bash
-python3 scripts/py/validate.py      # static checks (what the merge-request gate runs)
-python3 scripts/py/order.py --plan  # dependency-ordered deploy plan
-bash scripts/demo-local.sh          # full loop: seed DEV -> UI change -> export diff -> TEST -> PROD -> drift
+cp .env.example .env            # fill DS_PASSWORD (trial login) - .env is git-ignored
+make install-cli                # SAP Datasphere CLI 2026.21.0
+make passcode-start             # opens a separate Chrome; with DS_AUTO_LOGIN=1 it signs in itself
+make passcode-test              # prints a one-time passcode = automation works
+make bootstrap                  # first run only: create the objects, read back their stored form
+make pipeline                   # everything GitLab CI runs, locally, against the real tenant
+make passcode-stop              # when done
 ```
 
-Requirements: bash, python3 (3.8+), diff. On Windows use WSL or Git Bash.
+No tenant at hand? `make demo` (or `DS_MODE=mock make pipeline`) runs everything against a
+built-in simulator of the CLI.
 
-## Going real
+### Platforms
 
-1. Get a tenant -> [docs/01](docs/01-datasphere-tenant-and-ui-tour.md)
-2. Install CLI, create OAuth client, export your first objects -> [docs/02](docs/02-cli-and-oauth.md)
-3. Push to GitLab, set variables, protect tags, switch `DS_MODE=real` -> [docs/03](docs/03-gitlab-setup.md)
-4. Rehearse the interview with the mapping in [docs/04](docs/04-interview-cheatsheet.md)
-5. Links: [docs/05](docs/05-references.md)
+| | How to run | Notes |
+|---|---|---|
+| **macOS** | Terminal: commands above | Tested. `brew install node@24` (CLI supports Node 20-24). |
+| **Linux** | Terminal: commands above | Same scripts; CI uses `node:22-bookworm`. `make test-linux` runs the self-test in that image (Docker). Chrome or Chromium on PATH, or `CHROME_BIN` in `.env`. |
+| **Windows** | **Git Bash** (comes with Git for Windows): commands above | `make` is not in Git Bash - install it (`winget install GnuWin32.Make` / `choco install make`) or run the script lines from the `Makefile` directly, e.g. `bash scripts/pipeline.sh`. Python may be `python`/`py` - handled. Not tested yet. |
 
-## How it flows
+---
 
-```
- Datasphere DEV space ──(export.sh: CLI read + normalise)──▶ definitions/*.json ──▶ merge request
-        ▲                                                         │ validate + plan (no tenant needed)
-   modelers build in UI                                            ▼
-                                                               main branch
-                                                                   │ auto
-                                                                   ▼
-                                                          deploy-test (TEST space)
-                                                                   │ git tag vX.Y.Z + manual approval
-                                                                   ▼
-                                                          deploy-prod (PROD space)
+## How it runs today (POC) vs. what production needs
 
-   schedules:  export-dev -> opens an MR with UI changes   |   drift-check -> alerts if TEST/PROD != Git
-```
+| Concern | POC - trial tenant (now) | Production |
+|---|---|---|
+| **Tenant / environments** | One shared trial tenant, **one space**: dev, test and prod all map to `SPACE_00031222` (`config/environments.json`) - promotion re-deploys into the same space | Separate spaces or tenants for DEV / QA / PROD, each mapped in `config/environments.json` (and `DS_HOST` per GitLab environment if tenants differ) |
+| **Authentication** | **Passcodes**: no OAuth client in the trial, so every CLI call needs a one-time passcode; `tools/passcode/` reads them from a signed-in Chrome; optional auto-login with `DS_USER`/`DS_PASSWORD` from `.env` | **OAuth client, purpose Technical User** (client credentials): `DS_CLIENT_ID`, `DS_CLIENT_SECRET`, `DS_AUTH_URL`, `DS_TOKEN_URL` as masked GitLab variables, one client per environment, scoped role DW Modeler on its space only. No browser, no password, no passcodes. Already supported by `scripts/lib.sh` |
+| **Where the pipeline runs** | Laptop: `make pipeline` (passcode mode needs your browser session, so not in GitLab) | GitLab runners (`.gitlab-ci.yml`, same stages); runner must reach the tenant (allow-list IPs if the tenant restricts them) |
+| **Approvals** | Prompt `Approve now? [y/N]` before deploy-prod | Protected tags `v*`, protected variables; Protected Environments with approvers (GitLab Premium) |
+| **Secrets** | `.env` on the laptop (git-ignored, plain text) | GitLab masked + protected variables, ideally from a vault; rotate client secrets (OAuth client expiry) |
+| **Data** | Optional CSV upload in the UI | Never through this pipeline: replication flows, data flows, remote tables, task chains per environment |
+| **Object types** | Local tables + SQL views proven | Test every type in use (graphical views, analytic models, flows, task chains, access controls); flows/remote tables need their **connections** created per tenant first |
+| **Deletes / renames** | Not automated - by design, deploy never deletes | Decide a policy (manual, or an explicit "removals" list reviewed in the MR) |
+| **CLI version** | Pinned `2026.21.0` | Pinned; bump deliberately with each Datasphere wave, test in QA first |
+
+**Production checklist:** tenants/spaces created · scoped roles · one Technical User OAuth client per
+environment · GitLab variables (masked, protected, environment-scoped) · protected `v*` tags ·
+`DS_MODE=real` in CI · remove `DS_AUTH=passcode` · `config/environments.json` with real space names ·
+connections per tenant · first run `--flow bootstrap` per environment · schedules for `export-dev`
+and `drift-check`. Step by step: [docs/00-RUNBOOK.md](docs/00-RUNBOOK.md) Phases 0-7.
+
+---
 
 ## Layout
 
 ```
-.gitlab-ci.yml            pipeline (mock by default)
-definitions/<type>/<NAME>.json   one CSN file per object; folder = CLI object type (local-tables, views, ...)
-config/environments.json  env -> space name          config/policy.json  naming rules for the MR gate
-scripts/                  export.sh deploy.sh drift-check.sh export-to-mr.sh ds-login via lib.sh
-scripts/py/               validate.py order.py normalize.py parse_list.py dslib.py
-tools/mock-datasphere/    simulator used when DS_MODE=mock
-sample-data/              two CSVs to load into the sample tables
-docs/                     01 tenant+UI  02 CLI+OAuth  03 GitLab  04 interview  05 references
+Makefile                    one-line entry points (make help)
+.gitlab-ci.yml              GitLab pipeline - every job calls scripts/pipeline.sh stage <name>
+.env.example                settings template (copy to .env, git-ignored)
+config/
+  environments.json         env -> space name
+  policy.json               merge-request rules (names, prefixes, excluded generated objects)
+  normalize.json            what to strip from exports (e.g. _meta)
+definitions/<type>/<NAME>.json   one CSN file per Datasphere object - the thing under version control
+scripts/
+  pipeline.sh               the pipeline: stages + local orchestration
+  deploy.sh export.sh drift-check.sh preflight.sh export-to-mr.sh
+  lib.sh env.sh             shared helpers (login, CLI wrapper, .env loading, cross-platform)
+  install-cli.sh login-interactive.sh create-spaces.sh demo-local.sh
+  py/                       validate, order (dependency plan), normalize, import_csn, parse_list
+tools/passcode/             passcode automation (chrome-session.sh, get-passcode.mjs)
+tools/mock-datasphere/      CLI simulator (DS_MODE=mock)
+sample-data/sap-bike-sales/ SAP's original sample model + CSV data (Apache 2.0, see NOTICE.md)
+docs/                       00 runbook · 01 tenant & UI · 02 CLI & OAuth · 03 GitLab · 04 interview · 05 links · 06 how it works
 ```
-
-## Pipeline behaviour
-
-| Trigger | Jobs |
-|---|---|
-| Merge request | `validate` (JSON/CSN shape, naming policy, secrets scan, dependency + cycle check) -> `plan` |
-| Push to `main` | validate -> plan -> `deploy-test` (automatic) |
-| Tag `vX.Y.Z` | validate -> plan -> deploy-test -> `deploy-prod` (**manual**, `resource_group` serialised) |
-| Schedule `SCHEDULE_JOB=export-dev` | export DEV -> commit -> open MR with the differences |
-| Schedule `SCHEDULE_JOB=drift-check` | export TEST/PROD, diff against Git, fail on drift |
-
-Design choices worth being able to explain: deploys are **idempotent** (update if exists, else create) and **never delete**; objects are deployed **dependencies-first** (tables before views before views-on-views); the CLI version is **pinned** via `DS_CLI_VERSION`; JSON keys are **not sorted** on export because the order of `elements` is the column order.
 
 ## Verified vs. assumed
 
 | Item | Status |
 |---|---|
-| `npm install -g @sap/datasphere-cli`; `config cache init --host --secrets-file`; secrets.json fields; OAuth "Interactive Usage" client; login valid ~720 h | Verified in SAP's npm README |
-| `datasphere objects local-tables create/read/update/delete --space --technical-name --file-path` | Verified in an SAP blog (local tables); other object types follow the same pattern per that blog |
-| `datasphere objects ... list` | SAP Help says objects supports list/read/delete; **output format not confirmed** -> `parse_list.py` is tolerant |
-| `datasphere config host set <url>` | Command name from memory; SAP Help has a section "Set a Host Value..." - **verify with `datasphere config -h`** |
-| `views` as the CLI type for SQL/graphical views, and the CSN layout of the sample files | Plausible, **illustrative** - replace with your tenant's real export |
-| Non-interactive auth in CI | Works via refresh token in secrets.json, which expires; see docs/02 step 6 for the proper options |
+| CLI install, `config host set`, `config cache init`, `objects <type> list/read/create/update`, `--output`, `--accept`, `--passcode` | Verified: SAP CLI guide 2026.21 + **run against the trial tenant** |
+| Local tables and SQL views created/updated from Git, dependency order incl. associations | **Verified on the trial tenant** |
+| Read-back equals what was deployed except `_meta` | **Verified on the trial tenant** |
+| Technical User OAuth client supports `datasphere objects` (client credentials) | SAP CLI guide 2.3; login code path tested against an unreachable host, not a real tenant |
+| GitLab pipeline in real mode | Not run (trial has no OAuth client); same stage scripts as the local run |
+| Windows | Written for Git Bash, not tested |
+| Auto-login | Tested against a simulated login page; the real SAP login page may differ (MFA/captcha -> sign in by hand) |

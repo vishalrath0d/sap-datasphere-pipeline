@@ -1,5 +1,10 @@
 # 2. SAP Datasphere CLI and OAuth - commands you can run
 
+> **Note (2026-10-20):** written before the project ran on a real tenant. Current, verified flow:
+> [00-RUNBOOK.md](00-RUNBOOK.md) and [06-how-it-works.md](06-how-it-works.md). CI login = OAuth *Technical User*
+> (`DS_CLIENT_ID`/`DS_CLIENT_SECRET`/`DS_AUTH_URL`/`DS_TOKEN_URL`), not a refresh token.
+
+
 Everything below is from SAP's published CLI README/help unless marked **(verify)**. Run `-h` at every level of the command tree - the CLI builds its command list from your tenant, so `-h` is the source of truth.
 
 ## 1. Install

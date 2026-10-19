@@ -1,4 +1,8 @@
-.PHONY: help pipeline bootstrap pipeline-mr pipeline-main pipeline-tag validate plan demo install-cli passcode-start passcode-stop passcode-test login preflight spaces deploy-dev deploy-test deploy-prod export-dev drift-prod
+# Works on macOS, Linux and Windows (Git Bash + GNU make). Every target is a thin wrapper
+# around a script, so on a machine without make you can run the script line directly.
+PYTHON ?= $(shell command -v python3 2>/dev/null || command -v python 2>/dev/null || echo python3)
+
+.PHONY: help pipeline bootstrap pipeline-mr pipeline-main pipeline-tag validate plan demo test-linux install-cli passcode-start passcode-stop passcode-test login preflight spaces deploy-dev deploy-test deploy-prod export-dev drift-prod
 
 help:           ## list targets
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | sed 's/:.*##/\t/'
@@ -15,10 +19,13 @@ pipeline-tag:   ## what a vX.Y.Z tag runs: + deploy-prod (asks for approval)
 	bash scripts/pipeline.sh --flow tag
 
 validate:       ## static checks, no tenant needed
-	python3 scripts/py/validate.py
+	$(PYTHON) scripts/py/validate.py
 
 plan:           ## show deploy order
-	python3 scripts/py/order.py --plan
+	$(PYTHON) scripts/py/order.py --plan
+
+test-linux:     ## run the self-test + full mock pipeline inside the GitLab CI image (needs Docker)
+	docker run --rm -v "$$PWD":/src:ro node:22-bookworm bash -c 'cp -r /src /w && cd /w && rm -f .env && bash scripts/demo-local.sh && DS_MODE=mock bash scripts/pipeline.sh --yes'
 
 demo:           ## full rehearsal against the built-in simulator (also acts as the test)
 	bash scripts/demo-local.sh

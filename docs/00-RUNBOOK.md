@@ -42,6 +42,10 @@ make demo                              # simulator self-test, must end "all expe
 ```
 
 **T2. Passcode browser (2 min)**
+
+In `.env` set `DS_PASSWORD=` (and keep `DS_AUTO_LOGIN=1`, `DS_USER=<login email>`) to let it sign in
+by itself in a background tab; leave `DS_AUTO_LOGIN=0` to sign in by hand once. Nothing opens or
+takes focus while the pipeline runs - passcodes are fetched with the session cookies.
 ```bash
 make passcode-start                    # a separate Chrome window opens on the passcode page
 # sign in there (SAP Experience Academy login) until you see "Temporary Authentication Code"

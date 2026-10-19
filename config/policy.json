@@ -4,5 +4,9 @@
   "required_prefix": {
     "views": "V_"
   },
-  "external_sources": []
+  "external_sources": [],
+  "discover_exclude": [
+    "^SAP\\."
+  ],
+  "_comment_discover_exclude": "export --discover skips technical names matching these regexes. SAP.TIME.* are the time-dimension objects Datasphere generates per space (only business names/time settings are editable) - they are not versioned."
 }

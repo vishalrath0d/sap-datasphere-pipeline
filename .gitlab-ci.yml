@@ -8,8 +8,8 @@
 #
 # Starts in DS_MODE=mock so it is green on day one without a tenant.
 # Switch to the real SAP Datasphere CLI by setting DS_MODE=real in Settings > CI/CD > Variables,
-# plus DS_HOST, DS_CLIENT_ID, DS_CLIENT_SECRET, DS_TOKEN_URL of an OAuth client with purpose
-# "Technical User" (client credentials - no browser, no 30-day token expiry). See docs/00-RUNBOOK.md.
+# plus DS_HOST, DS_AUTH_URL, DS_TOKEN_URL, DS_CLIENT_ID, DS_CLIENT_SECRET of an OAuth client with
+# purpose "Technical User" (client credentials - no browser, no passcodes). See docs/06-how-it-works.md.
 
 workflow:
   rules:

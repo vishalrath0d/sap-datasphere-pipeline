@@ -34,6 +34,13 @@ elif [ "$discover" = 1 ]; then
   for t in $(python3 "$ROOT/scripts/py/order.py" --types); do
     # A type the tenant does not offer (or you have no privilege for) is skipped, not fatal.
     names="$(retry 2 ds_list_names "$t" "$space" 2>/dev/null)" || { log "skip type $t (list failed)"; continue; }
+    # generated/system objects (policy.json discover_exclude, e.g. SAP.TIME.*) are not versioned
+    names="$(printf '%s\n' "$names" | python3 -c '
+import json, re, sys
+pats = [re.compile(p) for p in json.load(open(sys.argv[1])).get("discover_exclude", [])]
+for n in sys.stdin.read().split():
+    if any(p.search(n) for p in pats): print("skip generated object %s" % n, file=sys.stderr)
+    else: print(n)' "$ROOT/config/policy.json")"
     for n in $names; do printf '%s\t%s\n' "$t" "$n"; done >>"$worklist"
   done
 else

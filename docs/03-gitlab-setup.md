@@ -1,5 +1,10 @@
 # 3. GitLab: repo, variables, approvals, schedules
 
+> **Note (2026-10-20):** written before the project ran on a real tenant. Current, verified flow:
+> [00-RUNBOOK.md](00-RUNBOOK.md) and [06-how-it-works.md](06-how-it-works.md). CI login = OAuth *Technical User*
+> (`DS_CLIENT_ID`/`DS_CLIENT_SECRET`/`DS_AUTH_URL`/`DS_TOKEN_URL`), not a refresh token.
+
+
 ## 1. Create the project and push
 
 ```bash
